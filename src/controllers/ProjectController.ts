@@ -26,7 +26,7 @@ export class ProjectController {
 		const projectId = req.params.id;
 
 		try {
-			const project = await Project.findById(projectId);
+			const project = await Project.findById(projectId).populate('tasks');
 
 			if (!project) {
 				const error = new Error('Project not found');
@@ -43,12 +43,16 @@ export class ProjectController {
 		const projectId = req.params.id;
 
 		try {
-			const project = await Project.findByIdAndUpdate(projectId, req.body);
+			const project = await Project.findById(projectId);
 
 			if (!project) {
 				const error = new Error('Project not found');
 				res.status(404).json({ error: error.message });
 			}
+
+			project.projectName = req.body.projectName ?? project.projectName;
+			project.clientName = req.body.clientName ?? project.clientName;
+			project.description = req.body.description ?? project.description;
 
 			await project.save();
 			res.send('Project updated');
